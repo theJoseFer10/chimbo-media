@@ -10,20 +10,23 @@ print("by - makima (Enhanced Version)\n")
 
 ytmusic = YTMusic()
 
+
 def obtener_portada(titulo):
     try:
         r = ytmusic.search(titulo, filter="songs")
         if r:
             url = r[0]['thumbnails'][-1]['url']
-            return url.split('=')[0] + '=w1000-h1000'  # HD 🔥
+            return url.split('=')[0] + '=w1000-h1000'
     except:
         pass
     return None
+
 
 def descargar_imagen(url, ruta):
     img = requests.get(url)
     with open(ruta, 'wb') as f:
         f.write(img.content)
+
 
 def insertar_portada(mp3, cover):
     temp = mp3.replace(".mp3", "_tmp.mp3")
@@ -42,6 +45,7 @@ def insertar_portada(mp3, cover):
 
     os.replace(temp, mp3)
 
+
 while True:
     enlace = input("Ingresa el enlace de youtube => ")
     print("¿Qué formato prefieres?\n1. MP3 (Alta Calidad + Portada)\n2. MP4 (Video)")
@@ -49,7 +53,7 @@ while True:
 
     ruta = input("Pega la ruta de la carpeta (Enter para carpeta actual): ").strip()
     if not ruta or not os.path.exists(ruta):
-        ruta = "."
+        ruta = "./Music"
 
     # Configuración base
     opciones_base = {
@@ -66,11 +70,11 @@ while True:
                 {
                     'key': 'FFmpegExtractAudio',
                     'preferredcodec': 'mp3',
-                    'preferredquality': '320', # Máxima calidad de audio
+                    'preferredquality': '320',  # Máxima calidad de audio
                 }
             ],
         })
-    
+
     elif formato == "2":
         print("Descargando MP4...")
         opciones_base.update({
@@ -82,28 +86,43 @@ while True:
 
     try:
         with yt_dlp.YoutubeDL(opciones_base) as ydl:
-            info = ydl.extract_info(enlace, download=False)
-            titulo = ydl.prepare_filename(info)
-            print("Descargando...")
-            ydl.download([enlace])
-        
-        mp3 = f"{titulo.replace(".webm","")}.mp3"
+            info = ydl.extract_info(enlace, download=True)
 
-        print("Buscando portada...")
-        cover_url = obtener_portada(titulo)
+            #playlist
+            if 'entries' in info:
+                for video in info['entries']:
+                    if video is None:
+                        continue
 
-        if cover_url:
-            cover_path = f"{ruta}/cover.jpg"
-            descargar_imagen(cover_url, cover_path)
+                    titulo = ydl.prepare_filename(video)
+                    mp3 = titulo.rsplit('.', 1)[0] + ".mp3"
 
-            print("Insertando portada...")
-            insertar_portada(mp3, cover_path)
+                    print(f"Procesando: {mp3}")
 
-            os.remove(cover_path)
-        else:
-            print("No se encontró portada")
+                    cover_url = obtener_portada(video.get('title', ''))
 
-        print("--- Descarga completa con éxito ---")
+                    if cover_url:
+                        cover_path = f"{ruta}/cover.jpg"
+                        descargar_imagen(cover_url, cover_path)
+                        insertar_portada(mp3, cover_path)
+                        os.remove(cover_path)
+                    else:
+                        print("No se encontro portada")
+
+            #video individual
+            else:
+                titulo = ydl.prepare_filename(info)
+                mp3 = titulo.rsplit('.', 1)[0] + ".mp3"
+
+                cover_url = obtener_portada(info.get('title', ''))
+
+                if cover_url:
+                    cover_path = f"{ruta}/cover.jpg"
+                    descargar_imagen(cover_url, cover_path)
+                    insertar_portada(mp3, cover_path)
+                    os.remove(cover_path)
+                else:
+                    print("No se encontro portada")
 
     except Exception as e:
         print(f"Ocurrió un error: {e}")
@@ -113,4 +132,4 @@ while True:
         print("¡Hasta luego!")
         break
     else:
-        print("\n" + "="*30 + "\n")
+        print("\n" + "=" * 30 + "\n")
