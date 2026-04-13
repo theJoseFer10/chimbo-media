@@ -1,9 +1,46 @@
 import yt_dlp
 import os
 from logo import logo
+import requests
+import subprocess
+from ytmusicapi import YTMusic
 
 print(logo)
 print("by - makima (Enhanced Version)\n")
+
+ytmusic = YTMusic()
+
+def obtener_portada(titulo):
+    try:
+        r = ytmusic.search(titulo, filter="songs")
+        if r:
+            url = r[0]['thumbnails'][-1]['url']
+            return url.split('=')[0] + '=w1000-h1000'  # HD 🔥
+    except:
+        pass
+    return None
+
+def descargar_imagen(url, ruta):
+    img = requests.get(url)
+    with open(ruta, 'wb') as f:
+        f.write(img.content)
+
+def insertar_portada(mp3, cover):
+    temp = mp3.replace(".mp3", "_tmp.mp3")
+
+    subprocess.run([
+        "ffmpeg", "-y",
+        "-i", mp3,
+        "-i", cover,
+        "-map", "0", "-map", "1",
+        "-c", "copy",
+        "-id3v2_version", "3",
+        "-metadata:s:v", "title=Album cover",
+        "-metadata:s:v", "comment=Cover (front)",
+        temp
+    ], stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
+
+    os.replace(temp, mp3)
 
 while True:
     enlace = input("Ingresa el enlace de youtube => ")
@@ -17,7 +54,8 @@ while True:
     # Configuración base
     opciones_base = {
         'outtmpl': f'{ruta}/%(title)s.%(ext)s',
-        'writethumbnail': True, # Descarga la imagen de portada
+        'restrictfilenames': True
+
     }
 
     if formato == "1":
@@ -29,14 +67,7 @@ while True:
                     'key': 'FFmpegExtractAudio',
                     'preferredcodec': 'mp3',
                     'preferredquality': '320', # Máxima calidad de audio
-                },
-                {
-                    'key': 'EmbedThumbnail', # Inserta la foto en el MP3
-                },
-                {
-                    'key': 'FFmpegMetadata', # Inserta artista, título, etc.
-                    'add_metadata': True,
-                },
+                }
             ],
         })
     
@@ -51,8 +82,29 @@ while True:
 
     try:
         with yt_dlp.YoutubeDL(opciones_base) as ydl:
+            info = ydl.extract_info(enlace, download=False)
+            titulo = ydl.prepare_filename(info)
+            print("Descargando...")
             ydl.download([enlace])
+        
+        mp3 = f"{titulo.replace(".webm","")}.mp3"
+
+        print("Buscando portada...")
+        cover_url = obtener_portada(titulo)
+
+        if cover_url:
+            cover_path = f"{ruta}/cover.jpg"
+            descargar_imagen(cover_url, cover_path)
+
+            print("Insertando portada...")
+            insertar_portada(mp3, cover_path)
+
+            os.remove(cover_path)
+        else:
+            print("No se encontró portada")
+
         print("--- Descarga completa con éxito ---")
+
     except Exception as e:
         print(f"Ocurrió un error: {e}")
 
