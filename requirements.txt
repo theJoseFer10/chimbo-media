@@ -7,3 +7,5 @@ yt-dlp==2026.3.17
 ytmusicapi==1.11.5
 lyricsgenius==3.12.2
 mutagen==1.48.1
+questionary==2.1.1
+tqdm==4.68.2
