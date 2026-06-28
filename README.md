@@ -1,60 +1,54 @@
 # Chimbo Media
-
-YouTube / YouTube Music downloader interactivo por CLI.  
-Descarga videos y música en **MP3** (320 kbps) o **MP4**, con portada, metadatos y letras incrustadas.
-
-## Requisitos
-
-- Python 3.12+
-- `ffmpeg` instalado en el sistema (para conversión de audio e inserción de portada)
-
-## Instalación
-
-Clona el repositorio y prepara el entorno virtual:
-
+En este documento se redacta como descargar e implementar el script de chimbo media en su sistema.
+## Que es Chimbo Media?
+Chimbo Media es un script que permite descargar contenido multimedia en su sistema.
+## Requisitos.
+- Python 3.x
+- Ffmpeg instalado en su sistema
+- Una terminal o emulador de terminal
+# Instalación
+- Clone el repositorio de Chimbo Media en su sistema.
 ```bash
-git clone <repo-url>
+git clone https://github.com/theJoseFer10/chimbo-media.git
+```
+- Navegue al directorio del repositorio clonado.
+```bash
 cd chimbo-media
+```
+- Cree un entorno virtual para el proyecto.
+```bash
 python -m venv venv
-source venv/bin/activate
-pip install -r src/requirements.txt
 ```
-
-## Uso
-
-Activa el entorno virtual y ejecuta:
-
+- Instale las dependencias del proyecto.
 ```bash
-source venv/bin/activate
-python src/main.py
+pip install -r requirements.txt
 ```
 
-El asistente te guiará para pegar un enlace de YouTube, elegir formato (MP3/MP4), carpeta de salida, y más.
-
-### Alias rápido (`.bashrc`)
-
-Para ejecutar desde cualquier terminal sin escribir los pasos manuales, agrega esto a tu `~/.bashrc`:
-
+# Creación de alias en bashrc
+- Abra su archivo `~/.bashrc` en un editor de texto.
 ```bash
-alias chimbo='cd /ruta/completa/a/chimbo-media && source venv/bin/activate && python src/main.py'
+nano ~/.bashrc
 ```
-
-Reemplaza `/ruta/completa/a/chimbo-media` con la ruta absoluta del proyecto.  
-Después de guardar, recarga con `source ~/.bashrc` y ejecuta `chimbo` en cualquier directorio.
-
-## Variables de entorno
-
-| Variable                | Obligatoria | Descripción                                        |
-|-------------------------|-------------|----------------------------------------------------|
-| `GENIUS_ACCESS_TOKEN`   | No          | Token de la API de Genius para obtener letras. Si no se provee, se usa un token interno por defecto. |
-
-Copia el archivo de ejemplo:
-
+- Agregue el siguiente alias al final del archivo.
 ```bash
-cp .env.example .env
+alias chimbomedia="cd ruta/chimbomedia && source venv/bin/activate && python src/main.py"
+```
+- Guarde y cierre el archivo.
+```bash
+exit
+```
+Si despues de usar el programa el entorno virtual sigue activo, ejecute el siguiente comando para desactivarlo.
+```bash
+deactivate
 ```
 
-## Autoría
+# Ejecución
+- Para ejecutar Chimbo Media, simplemente ejecute el siguiente comando en su terminal.
+```bash
+chimbomedia
+```
 
-- **makima**
-- **David Gallegos**
+## Creditos
+- Makima
+- David Gallegos
+
